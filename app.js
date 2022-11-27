@@ -14,10 +14,6 @@ const fastify = require('fastify')({
   }
 })
 
-fastify.register(require('@fastify/mysql'), {
-  connectionString: 'mysql://root:java@localhost:3306/sbst',
-  promise: true,
-})
 fastify.register(require('@fastify/routes'))
 fastify.register(require('./src/v1/routes'), { prefix: '/v1' })
 fastify.setErrorHandler(function (error, request, reply) {

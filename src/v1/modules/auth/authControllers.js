@@ -1,4 +1,5 @@
 const registerSchemas = require('./schemas')
+const authServices = require('./authService')
 
 function authController(fastify, opts, done) {
 
@@ -6,17 +7,20 @@ function authController(fastify, opts, done) {
     fastify.addSchema(registerSchemas.privateUserSchema)
     fastify.addSchema(registerSchemas.publicUserSchema)
 
-
-    fastify.post('/register', {
+    const registerOpt = {
         schema: { 
-            body: { $ref: 'newUserSchema'}
-        } 
-    }, async function (request, reply) {
+            body: { 
+                $ref: 'newUserSchema'
+            }
+        }
+    }
+
+    fastify.post('/register', registerOpt, async function (request, reply) {
         
         const { body } = request
 
-        const [rows, fields] = await fastify.mysql.query(`SELECT username, email FROM user`)
-        reply.send(rows)
+        
+        reply.callNotFound()
     })
 
     fastify.get('/verify', async function (request, reply) {
@@ -30,12 +34,6 @@ function authController(fastify, opts, done) {
         reply.send({
             body
         })
-    })
-
-
-
-    fastify.get('/a', async function(request, reply) {
-        reply.callNotFound()
     })
 
     done()
