@@ -19,12 +19,27 @@ function authController(fastify, opts, done) {
         
         const { body } = request
 
-        
-        reply.callNotFound()
+        const res = await authServices.newUser(body, reply)
+
+        if(res.error) {
+            return reply.code(400).send(new Error(res.error.message))
+        }
+
+        reply.code(201).send(res)
     })
 
-    fastify.get('/verify', async function (request, reply) {
-        reply.send({message: 'hola'})
+    fastify.post('/verify', async function (request, reply) {
+        
+        const { body } = request
+
+        const verificationResult = await authServices.verifyUser(body.confirmToken, body.code)
+
+        if(verificationResult.error) {
+            return reply.code(403).send(new Error(verificationResult.error.message))
+        }
+
+        reply.send(verificationResult)  
+
     })
 
     fastify.post('/login', async function (request, reply) {

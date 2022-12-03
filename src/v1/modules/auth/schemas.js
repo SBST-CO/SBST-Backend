@@ -3,9 +3,9 @@ const Schemas = {
     newUserSchema: {
         $id: 'newUserSchema',
         type: 'object',
-        required: ['username', 'email', 'password'],
+        required: ['userName', 'email', 'password'],
         properties: {
-            username: { type: 'string' },
+            userName: { type: 'string' },
             email: { type:'string', format: 'email' },
             password: { type: 'string' }
         }
@@ -15,7 +15,7 @@ const Schemas = {
         type: 'object',
         properties: {
             id: { type: 'integer' }, 
-            username: { type: 'string' },
+            userName: { type: 'string' },
             email: { type:'string', format: 'email' },
             pasword: { type: 'string' },
             lastLogin: { type: 'string' },
@@ -30,7 +30,7 @@ const Schemas = {
         type: 'object',
         properties: {
             id: { type: 'integer' }, 
-            username: { type: 'string' },
+            userName: { type: 'string' },
             createdAt: { type: 'string' },
             isActive: { type: 'boolean' },
             avatar: { type: 'string' }

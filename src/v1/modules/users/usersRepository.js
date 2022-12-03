@@ -6,8 +6,7 @@ async function findAllUsers() {
 }
 
 async function findUserById(id) {
-    const [rows, fields] = await db.execute('SELECT username, email FROM user WHERE `id` = ?', [id])
-    
+    const [rows, fields] = await db.execute("SELECT id, username, email, lastLogin, createdAt, isActive, avatar FROM user WHERE `id` = ?", [id])
     return rows[0]
 }
 
