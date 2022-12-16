@@ -32,7 +32,7 @@ function authController(fastify, opts, done) {
         
         const { body } = request
 
-        const verificationResult = await authServices.verifyUser(body.confirmToken, body.code)
+        const verificationResult = await authServices.verifyUser(body.confirmId, body.code)
 
         if(verificationResult.error) {
             return reply.code(403).send(new Error(verificationResult.error.message))

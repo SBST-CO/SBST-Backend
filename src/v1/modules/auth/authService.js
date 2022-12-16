@@ -75,9 +75,8 @@ async function setVerifiedUser(userId) {
 }
 
 
-async function verifyUser(confirmToken, userCode) {
-    const code = await getCode(confirmToken)
-
+async function verifyUser(confirmId, userCode) {
+    const code = await getCode(confirmId)
 
     if(!code) {
         return {
@@ -87,20 +86,20 @@ async function verifyUser(confirmToken, userCode) {
         }
     }
 
-
     const confirmData = JSON.parse(code)
     
-    console.log('ConfirmData: ', confirmData)
-
-    if(userCode != code) {
+    if(userCode != confirmData.code) {
         return {
             error: {
                 message: 'El codigo es incorrecto'
             }
         }
     }
-    await setVerifiedUser(confirmData.user) // Activar el user
+    
+    await redis.del(confirmId) // Remove the key
 
+    await setVerifiedUser(confirmData.user) // Activar el user
+    
     return { success: true }
 }
 
