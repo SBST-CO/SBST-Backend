@@ -3,9 +3,12 @@ const db = require('../db')
 const userRepository = db.getRepository('user')
 
 async function createNewUser(user) {
+
+    console.log(user)
     const newUser = {
         userName: user.userName,
-        email: user.email
+        email: user.email,
+        passwordHash: user.passwordHash
     }
     const createdUser = await userRepository.save(newUser)
 

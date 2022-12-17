@@ -16,7 +16,7 @@ const dataSource = new typeorm.DataSource({
 
 dataSource.initialize().then(() => {
 
-    console.log("Data base is now running 🚀")
+    console.log("DB is now running 🚀")
 
 }).catch(function(error) {
     console.log("Error: ", error);

@@ -1,6 +1,9 @@
 const authRepository = require('./authRepository')
 const { nanoid } = require('nanoid')
 const redis = require('../db/redis')
+const bcrypt = require('bcrypt')
+
+const saltRounds = Number(process.env.BCRYPT_SALT_ROUNDS)
 
 async function sendCode(user) { 
     const code = Math.floor(Math.random() * (9999 - 1111) + 1111)
@@ -31,8 +34,15 @@ async function getCode(confirmId) {
     return code
 }
 
+async function encryptPassword(password) {
+    return bcrypt.hashSync(password, saltRounds)
+}
+
 async function newUser(user) {
     try {
+        user.passwordHash = await encryptPassword(user.password)
+        user.password = null
+
         const newUser = await authRepository.createNewUser(user)
         const savedCode = await sendCode(newUser) // Set a random number, set a confirm id, save to redis and send to register response
 
