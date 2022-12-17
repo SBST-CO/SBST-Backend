@@ -1,15 +1,22 @@
 const authRepository = require('./authRepository')
 const { nanoid } = require('nanoid')
-const redis = require('../../../db/redis')
+const redis = require('../db/redis')
 
 async function sendCode(user) { 
     const code = Math.floor(Math.random() * (9999 - 1111) + 1111)
     const confirmId = nanoid()
 
-    const cached = await redis.set(confirmId, code)
+    const confirmValue = {
+        code,
+        user,
+        timeStamp: new Date()
+    }
 
-    console.log(code)
+    console.log(confirmValue)
 
+    const cached = await redis.set(confirmId, JSON.stringify(confirmValue))
+    await redis.expire(confirmId, 3600) //Expira en 1 hora
+    
     if(!cached == 'OK') {
         throw new Error('Error al intentar generar el codigo de confirmación')
     }
@@ -26,15 +33,14 @@ async function getCode(confirmId) {
 
 async function newUser(user) {
     try {
-        const newUSer = await authRepository.createNewUser(user)
-        const savedCode = await sendCode() // Set a random number, set a confirm id, save to redis and send to register response
+        const newUser = await authRepository.createNewUser(user)
+        const savedCode = await sendCode(newUser) // Set a random number, set a confirm id, save to redis and send to register response
 
-        console.log(savedCode);
-        
         return {
             user: {
-                id: newUSer[0].insertId,
-                email: user.email
+                id: newUser.id,
+                userName: newUser.userName,
+                email: newUser.email,
             },
             verify: savedCode
         }
@@ -63,18 +69,37 @@ async function newUser(user) {
     }
 }
 
+async function setVerifiedUser(user) {
+    return await authRepository.setActiveUser(user.id)
+}
 
-async function verifyUser(confirmToken, userCode) {
-    const code = await getCode(confirmToken)
 
-    if(userCode != code) {
+async function verifyUser(confirmId, userCode) {
+    const code = await getCode(confirmId)
+
+    if(!code) {
+        return {
+            error: {
+                message: 'El código de verificación no es válido o ha caducado'
+            }
+        }
+    }
+
+    const confirmData = JSON.parse(code)
+    
+    if(userCode != confirmData.code) {
         return {
             error: {
                 message: 'El codigo es incorrecto'
             }
         }
     }
-    return { succes: true }
+    
+    await redis.del(confirmId) // Remove the key
+
+    await setVerifiedUser(confirmData.user) // Activar el user
+    
+    return { success: true, message: "Cuenta verificada exitosamente!!" }
 }
 
 function authenticateUser(email, password) {

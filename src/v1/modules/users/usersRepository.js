@@ -1,13 +1,28 @@
-const db = require('../../../db/index')
+const db = require('../db')
+
+const userRepository = db.getRepository('user')
 
 async function findAllUsers() {
-    const [rows, fields] = await db.execute(`SELECT username, email FROM user`)
-    return rows
+    return userRepository.find({
+        select: {
+            id: true,
+            userName: true,
+            email: true
+        }
+    })
 }
 
 async function findUserById(id) {
-    const [rows, fields] = await db.execute("SELECT id, username, email, lastLogin, createdAt, isActive, avatar FROM user WHERE `id` = ?", [id])
-    return rows[0]
+    return userRepository.findOne({
+        select: {
+            id: true,
+            userName: true,
+            email: true
+        },
+        where: {
+            id
+        }
+    })
 }
 
 module.exports = {
