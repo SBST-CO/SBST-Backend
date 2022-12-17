@@ -1,6 +1,6 @@
 const authRepository = require('./authRepository')
 const { nanoid } = require('nanoid')
-const redis = require('../../../db/redis')
+const redis = require('../db/redis')
 
 async function sendCode(user) { 
     const code = Math.floor(Math.random() * (9999 - 1111) + 1111)
@@ -12,11 +12,11 @@ async function sendCode(user) {
         timeStamp: new Date()
     }
 
-    const cached = await redis.set(confirmId, JSON.stringify(confirmValue))
-    await redis.expire(confirmId, 3600) //Expira en 1 hora
-
     console.log(confirmValue)
 
+    const cached = await redis.set(confirmId, JSON.stringify(confirmValue))
+    await redis.expire(confirmId, 3600) //Expira en 1 hora
+    
     if(!cached == 'OK') {
         throw new Error('Error al intentar generar el codigo de confirmación')
     }
@@ -33,15 +33,14 @@ async function getCode(confirmId) {
 
 async function newUser(user) {
     try {
-        const newUSer = await authRepository.createNewUser(user)
-        const savedCode = await sendCode(newUSer[0].insertId) // Set a random number, set a confirm id, save to redis and send to register response
+        const newUser = await authRepository.createNewUser(user)
+        const savedCode = await sendCode(newUser) // Set a random number, set a confirm id, save to redis and send to register response
 
-        console.log(savedCode);
-        
         return {
             user: {
-                id: newUSer[0].insertId,
-                email: user.email
+                id: newUser.id,
+                userName: newUser.userName,
+                email: newUser.email,
             },
             verify: savedCode
         }
@@ -70,8 +69,8 @@ async function newUser(user) {
     }
 }
 
-async function setVerifiedUser(userId) {
-    // user.isActive = true SQL Query
+async function setVerifiedUser(user) {
+    return await authRepository.setActiveUser(user.id)
 }
 
 
@@ -100,7 +99,7 @@ async function verifyUser(confirmId, userCode) {
 
     await setVerifiedUser(confirmData.user) // Activar el user
     
-    return { success: true }
+    return { success: true, message: "Cuenta verificada exitosamente!!" }
 }
 
 function authenticateUser(email, password) {

@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "tap \"test/**/*.test.js\"",
+    "migrate": "npx typeorm migration:run -d src/v1/modules/db",
     "start": "node app.js | pino-pretty",
     "dev": "nodemon app.js | pino-pretty"
   },
@@ -33,7 +34,8 @@
     "ioredis": "^5.2.4",
     "mysql2": "^2.3.3",
     "nanoid": "^3.3.4",
-    "pino-pretty": "^9.1.1"
+    "pino-pretty": "^9.1.1",
+    "typeorm": "^0.3.11"
   },
   "devDependencies": {
     "fastify-cli": "^5.6.0",
