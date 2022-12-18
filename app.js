@@ -1,5 +1,6 @@
 'use strict'
 const localize = require('ajv-i18n')
+require('dotenv').config()
 
 const fastify = require('fastify')({ 
   logger: true,

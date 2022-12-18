@@ -3,9 +3,12 @@ const db = require('../db')
 const userRepository = db.getRepository('user')
 
 async function createNewUser(user) {
+
+    console.log(user)
     const newUser = {
         userName: user.userName,
-        email: user.email
+        email: user.email,
+        passwordHash: user.passwordHash
     }
     const createdUser = await userRepository.save(newUser)
 
@@ -20,7 +23,24 @@ async function setActiveUser(id) {
     return true
 }
 
+async function getUserLoginData(email) {
+    const user = await userRepository.findOne({
+        select: {
+            id: true,
+            email: true,
+            userName: true,
+            passwordHash: true,
+        },
+        where: {
+            email
+        }
+    })
+
+    return user
+}
+
 module.exports = {
     createNewUser,
-    setActiveUser
+    setActiveUser,
+    getUserLoginData
 }

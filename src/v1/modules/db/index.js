@@ -3,11 +3,11 @@ const { User } = require('./entities')
 
 const dataSource = new typeorm.DataSource({
     type: 'mysql',
-    host: 'localhost',
-    port: 3306,
-    username: 'root',
-    password: 'java',
-    database: 'type_orm_sbst_dev',
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    username: process.env.DB_USER_NAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     entities: [
         User
     ],
@@ -16,7 +16,7 @@ const dataSource = new typeorm.DataSource({
 
 dataSource.initialize().then(() => {
 
-    console.log("Data base is now running 🚀")
+    console.log("DB is now running 🚀")
 
 }).catch(function(error) {
     console.log("Error: ", error);
