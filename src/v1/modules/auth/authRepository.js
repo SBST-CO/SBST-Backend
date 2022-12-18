@@ -23,7 +23,24 @@ async function setActiveUser(id) {
     return true
 }
 
+async function getUserLoginData(email) {
+    const user = await userRepository.findOne({
+        select: {
+            id: true,
+            email: true,
+            userName: true,
+            passwordHash: true,
+        },
+        where: {
+            email
+        }
+    })
+
+    return user
+}
+
 module.exports = {
     createNewUser,
-    setActiveUser
+    setActiveUser,
+    getUserLoginData
 }

@@ -6,6 +6,7 @@ function authController(fastify, opts, done) {
     fastify.addSchema(registerSchemas.newUserSchema)
     fastify.addSchema(registerSchemas.privateUserSchema)
     fastify.addSchema(registerSchemas.publicUserSchema)
+    fastify.addSchema(registerSchemas.loginUserSchema)
 
     const registerOpt = {
         schema: { 
@@ -42,13 +43,40 @@ function authController(fastify, opts, done) {
 
     })
 
-    fastify.post('/login', async function (request, reply) {
+    const loginOpts = {
+        schema: {
+            body: {
+                $ref: 'loginUserSchema'
+            }
+        }
+    }
+
+    fastify.post('/login', loginOpts, async function (request, reply) {
         
         const { body } = request
 
-        reply.send({
-            body
-        })
+        const autheticatedUser = await authServices.login({email: body.email, password: body.password}, request.socket.remoteAddress)
+
+        if(autheticatedUser.error) {
+            return reply.code(401).send(new Error(autheticatedUser.error.message))
+        }
+
+        reply.send(autheticatedUser)  
+    })
+
+    fastify.get('/ping', async function(request, reply) {
+        const { headers } = request
+        const token = headers.authorization.split(' ')[1]
+        console.log(token);
+        
+        const vdata = await authServices.verifyAuth(token)
+        
+        if(vdata.error) {
+            return reply.code(401).send(new Error(vdata.error.message))
+        }
+
+        reply.send(vdata)
+
     })
 
     done()

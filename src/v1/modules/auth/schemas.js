@@ -10,6 +10,15 @@ const Schemas = {
             password: { type: 'string' }
         }
     },
+    loginUserSchema: {
+        $id: 'loginUserSchema',
+        type: 'object',
+        required: ['email', 'password'],
+        properties: {
+            email: { type: 'string', format: 'email' },
+            password: { type: 'string' }
+        }
+    },
     privateUserSchema: {
         $id: 'privateUserSchema',
         type: 'object',
