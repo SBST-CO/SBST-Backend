@@ -138,7 +138,7 @@ async function genTokens(user, ip) {
 
     const tokens = await Promise.all([
         jwt.sign(LOGIN_TOKEN_PAYLOAD, LOGIN_SECRET_KEY, { expiresIn: '1m' }),
-        jwt.sign(REFRESH_TOKEN_PAYLOAD, REFRESH_SECRET_KEY, { expiresIn: '5m' })
+        jwt.sign(REFRESH_TOKEN_PAYLOAD, REFRESH_SECRET_KEY, { expiresIn: '5m', notBefore: '1m' })
     ])
     
     return {
@@ -167,9 +167,36 @@ async function verifyAuth(token) {
     }
 }
 
+async function verifyAuth2(token) {
+    try {
+        const verifiedToken = await jwt.verify(token, REFRESH_SECRET_KEY)
+
+        console.log(verifiedToken)
+
+        return verifiedToken
+        
+    } catch (error) {
+        console.log(error)
+
+        return {
+            error: {
+                message: 'El token es invalido o ha expirado!!',
+                dev: error
+            }
+        }
+    }
+}
+
 async function login(user, ip) {
     const userData = await authRepository.getUserLoginData(user.email)
-    
+
+    if(!userData.isActive) {
+        return {
+            error: {
+                message: 'Porfavor verifique su correo electronico antes de iniciar sesion'
+            }
+        }
+    }
 
     if(!userData) {
         return DEFAULT_AUTH_ERROR
@@ -197,5 +224,6 @@ module.exports= {
     newUser,
     verifyUser,
     login,
-    verifyAuth
+    verifyAuth,
+    verifyAuth2
 }

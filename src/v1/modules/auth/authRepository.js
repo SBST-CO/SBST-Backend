@@ -30,6 +30,7 @@ async function getUserLoginData(email) {
             email: true,
             userName: true,
             passwordHash: true,
+            isActive: true
         },
         where: {
             email

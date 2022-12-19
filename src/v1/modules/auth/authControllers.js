@@ -79,6 +79,21 @@ function authController(fastify, opts, done) {
 
     })
 
+    fastify.get('/refresh/ping', async function(request, reply) {
+        const { headers } = request
+        const token = headers.authorization.split(' ')[1]
+        console.log(token);
+        
+        const vdata = await authServices.verifyAuth2(token)
+        
+        if(vdata.error) {
+            return reply.code(401).send(new Error(vdata.error.message))
+        }
+
+        reply.send(vdata)
+
+    })
+
     done()
 }
 
