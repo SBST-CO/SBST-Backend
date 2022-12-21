@@ -12,7 +12,8 @@ const DEFAULT_AUTH_ERROR = {
 }
 const LOGIN_SECRET_KEY = process.env.LOGIN_SECRET_KEY
 const REFRESH_SECRET_KEY = process.env.REFRESH_SECRET_KEY
-
+const LOGIN_EXPIRE = process.env.LOGIN_EXPIRE
+const REFRESH_EXPIRE = process.env.REFRESH_EXPIRE
 
 async function sendCode(user) { 
     const code = Math.floor(Math.random() * (9999 - 1111) + 1111)
@@ -137,8 +138,8 @@ async function genTokens(user, ip) {
     //const refreshToken = 
 
     const tokens = await Promise.all([
-        jwt.sign(LOGIN_TOKEN_PAYLOAD, LOGIN_SECRET_KEY, { expiresIn: '1m' }),
-        jwt.sign(REFRESH_TOKEN_PAYLOAD, REFRESH_SECRET_KEY, { expiresIn: '5m' })
+        jwt.sign(LOGIN_TOKEN_PAYLOAD, LOGIN_SECRET_KEY, { expiresIn: LOGIN_EXPIRE }),
+        jwt.sign(REFRESH_TOKEN_PAYLOAD, REFRESH_SECRET_KEY, { expiresIn: REFRESH_EXPIRE, notBefore: LOGIN_EXPIRE })
     ])
     
     return {
@@ -147,21 +148,72 @@ async function genTokens(user, ip) {
     }
 }
 
+
+async function getBlackListToken (token) {
+    const isListed = await redis.get(token)
+
+    if(isListed) {
+        return isListed
+    }else {
+        return false
+    }
+}
+
 async function verifyAuth(token) {
-    try {
-        const verifiedToken = await jwt.verify(token, LOGIN_SECRET_KEY)
+    
+    const isBlackListed = await getBlackListToken(token)
 
-        console.log(verifiedToken)
+    if(!isBlackListed) {
+        try {
 
-        return verifiedToken
-        
-    } catch (error) {
-        console.log(error)
+            const verifiedToken = await jwt.verify(token, LOGIN_SECRET_KEY)
 
+            console.log(verifiedToken)
+
+            return verifiedToken
+        } catch (error) {
+            console.log(error)
+    
+            return {
+                error: {
+                    message: 'El token es invalido o ha expirado!! 1'
+                }
+            }
+        }
+    }else {
         return {
             error: {
-                message: 'El token es invalido o ha expirado!!',
-                dev: error
+                message: 'El token es invalido o ha expirado!! 2'
+            }
+        }
+    }
+}
+
+
+async function verifyAuth2(token) {
+    const isBlackListed = await getBlackListToken(token)
+
+    if(!isBlackListed) {
+        try {
+
+            const verifiedToken = await jwt.verify(token, REFRESH_SECRET_KEY)
+
+            console.log(verifiedToken)
+
+            return verifiedToken
+        } catch (error) {
+            console.log(error)
+    
+            return {
+                error: {
+                    message: 'El token es invalido o ha expirado!! 1'
+                }
+            }
+        }
+    }else {
+        return {
+            error: {
+                message: 'El token es invalido o ha expirado!! 2'
             }
         }
     }
@@ -169,7 +221,14 @@ async function verifyAuth(token) {
 
 async function login(user, ip) {
     const userData = await authRepository.getUserLoginData(user.email)
-    
+
+    if(!userData.isActive) {
+        return {
+            error: {
+                message: 'Porfavor verifique su correo electronico antes de iniciar sesion'
+            }
+        }
+    }
 
     if(!userData) {
         return DEFAULT_AUTH_ERROR
@@ -188,6 +247,49 @@ async function login(user, ip) {
     
 }
 
+
+async function blackListToken(token, timeLeft) {
+    const blackListed = await redis.set(token, token)
+    await redis.expire(token, timeLeft)
+
+    return blackListed
+}
+
+async function logout(token, refreshToken) {
+
+
+    const decodedLoginToken = await jwt.decode(token)
+    const loginExpireIn = new Date(decodedLoginToken.exp*1000) - new Date()
+    let listedLogin
+
+    if(loginExpireIn > 0) {
+        listedLogin = await blackListToken(token, Math.round(loginExpireIn*0.001))
+        console.log(listedLogin);
+    }
+
+    const decodedRefreshToken = await jwt.decode(refreshToken)
+    const refreshExpireIn = new Date(decodedRefreshToken.exp*1000) - new Date()
+    let listedRefresh
+
+    console.log(refreshExpireIn)
+
+    if(refreshExpireIn > 0) {
+        listedRefresh = await blackListToken(refreshToken, Math.round(refreshExpireIn*0.001))
+        console.log(listedRefresh)
+    }
+
+    // Falta el refresh
+
+    return {
+        
+        now: new Date(),
+        loginToken_expire: new Date(decodedLoginToken.exp*1000),
+        refreshToken_expire: new Date(decodedRefreshToken.exp*1000),
+        login_blackListed: listedLogin?listedLogin:false,
+        refresh_blackListed: listedRefresh?listedRefresh:false
+    }
+}
+
 function authenticateUser(email, password) {
     console.log('authenticateUser ', email, password)
 }
@@ -197,5 +299,7 @@ module.exports= {
     newUser,
     verifyUser,
     login,
-    verifyAuth
+    verifyAuth,
+    verifyAuth2,
+    logout
 }

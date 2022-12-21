@@ -64,12 +64,33 @@ function authController(fastify, opts, done) {
         reply.send(autheticatedUser)  
     })
 
+    fastify.post('/logout', async function (request, reply) {
+        const { body } = request
+
+        const logOutRes = await authServices.logout(body.token, body.refresh)
+
+        reply.send(logOutRes)
+    })
+
     fastify.get('/ping', async function(request, reply) {
         const { headers } = request
-        const token = headers.authorization.split(' ')[1]
-        console.log(token);
         
+        const token = headers.authorization.split(' ')[1]
         const vdata = await authServices.verifyAuth(token)
+        
+        if(vdata.error) {
+            return reply.code(401).send(new Error(vdata.error.message))
+        }
+
+        reply.send(vdata)
+
+    })
+
+    fastify.get('/refresh/ping', async function(request, reply) {
+        const { headers } = request
+        
+        const token = headers.authorization.split(' ')[1]
+        const vdata = await authServices.verifyAuth2(token)
         
         if(vdata.error) {
             return reply.code(401).send(new Error(vdata.error.message))

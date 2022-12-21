@@ -4,11 +4,11 @@ const userRepository = db.getRepository('user')
 
 async function findAllUsers() {
     return userRepository.find({
-        select: {
-            id: true,
-            userName: true,
-            email: true
-        }
+        // select: {
+        //     id: true,
+        //     userName: true,
+        //     email: true
+        // }
     })
 }
 
