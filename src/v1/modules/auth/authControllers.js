@@ -36,7 +36,9 @@ function authController(fastify, opts, done) {
         const verificationResult = await authServices.verifyUser(body.confirmId, body.code)
 
         if(verificationResult.error) {
-            return reply.code(403).send(new Error(verificationResult.error.message))
+            let exeption = new Error(verificationResult.error.message)
+            exeption.code = verificationResult.error.code
+            return reply.code(403).send(exeption)
         }
 
         reply.send(verificationResult)  
@@ -55,13 +57,16 @@ function authController(fastify, opts, done) {
         
         const { body } = request
 
-        const autheticatedUser = await authServices.login({email: body.email, password: body.password}, request.socket.remoteAddress)
+        const authenticatedUser = await authServices.login({email: body.email, password: body.password}, request.socket.remoteAddress)
 
-        if(autheticatedUser.error) {
-            return reply.code(401).send(new Error(autheticatedUser.error.message))
+        if(authenticatedUser.error) {
+            let exeption = new Error(authenticatedUser.error.message)
+            exeption.code = authenticatedUser.error.code
+
+            return reply.code(401).send(exeption)
         }
 
-        reply.send(autheticatedUser)  
+        reply.send(authenticatedUser)  
     })
 
     fastify.post('/logout', async function (request, reply) {
@@ -72,35 +77,19 @@ function authController(fastify, opts, done) {
         reply.send(logOutRes)
     })
 
-    fastify.get('/ping', async function(request, reply) {
-        const { headers } = request
-        
-        const token = headers.authorization.split(' ')[1]
-        const vdata = await authServices.verifyAuth(token)
-        
-        if(vdata.error) {
-            let exeption = new Error(vdata.error.message)
-            exeption.code = vdata.error.code
+    fastify.post('/refresh', async function(request, reply) {
+        const { body } = request
+
+        const refreshedTokens = await authServices.refreshToken(body.token, body.refresh, request.socket.remoteAddress)
+
+        if(refreshedTokens.error) {
+            let exeption = new Error(refreshedTokens.error.message)
+            exeption.code = refreshedTokens.error.code
             
             return reply.code(401).send(exeption)
         }
 
-        reply.send(vdata)
-
-    })
-
-    fastify.get('/refresh/ping', async function(request, reply) {
-        const { headers } = request
-        
-        const token = headers.authorization.split(' ')[1]
-        const vdata = await authServices.verifyAuth2(token)
-        
-        if(vdata.error) {
-            return reply.code(401).send(new Error(vdata.error.message))
-        }
-
-        reply.send(vdata)
-
+        reply.send(refreshedTokens)
     })
 
     done()
