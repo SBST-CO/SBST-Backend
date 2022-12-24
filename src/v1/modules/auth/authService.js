@@ -176,6 +176,7 @@ async function verifyAuth(token) {
     
             return {
                 error: {
+                    code: error.name,
                     message: 'El token es invalido o ha expirado!! 1'
                 }
             }

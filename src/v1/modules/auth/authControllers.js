@@ -79,7 +79,10 @@ function authController(fastify, opts, done) {
         const vdata = await authServices.verifyAuth(token)
         
         if(vdata.error) {
-            return reply.code(401).send(new Error(vdata.error.message))
+            let exeption = new Error(vdata.error.message)
+            exeption.code = vdata.error.code
+            
+            return reply.code(401).send(exeption)
         }
 
         reply.send(vdata)
