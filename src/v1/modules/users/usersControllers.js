@@ -4,8 +4,10 @@ function userControllers(fastify, opts, done) {
 
     
 
-    fastify.get('/all', async function (request, reply) {
+    fastify.get('/all', opts,async function (request, reply) {
         const users = await usersServices.getAllUser()
+
+        console.log(request.authUser);
 
         reply.send(users)
     })

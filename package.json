@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/Yaderr/SBST-Backend#readme",
   "dependencies": {
+    "@fastify/auth": "^4.2.0",
     "@fastify/response-validation": "^2.1.0",
     "@fastify/routes": "^5.0.0",
     "@fastify/swagger": "^8.2.0",

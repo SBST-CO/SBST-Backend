@@ -1,6 +1,7 @@
 'use strict'
 const localize = require('ajv-i18n')
 require('dotenv').config()
+const { verifySimpleAuth } = require('./src/v1/modules/verifier')
 
 const fastify = require('fastify')({ 
   logger: true,
@@ -15,6 +16,10 @@ const fastify = require('fastify')({
   }
 })
 
+fastify.decorate('verifySimpleAuth', verifySimpleAuth)
+
+
+fastify.register(require('@fastify/auth'))
 fastify.register(require('@fastify/routes'))
 fastify.register(require('./src/v1/routes'), { prefix: '/v1' })
 fastify.setErrorHandler(function (error, request, reply) {
