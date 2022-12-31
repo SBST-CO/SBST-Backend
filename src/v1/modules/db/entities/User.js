@@ -39,6 +39,11 @@ module.exports = new EntitySchema({
             updateDate: true,
             nullable: false
         },
+        allowAuth: {
+            type: 'boolean',
+            nullable: false,
+            default: true,
+        },
         isActive: {
             type: 'boolean',
             nullable: false,
