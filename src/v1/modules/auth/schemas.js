@@ -19,30 +19,32 @@ const Schemas = {
             password: { type: 'string' }
         }
     },
-    privateUserSchema: {
-        $id: 'privateUserSchema',
+    verifyUserSchema: {
+        $id: 'verifySchema',
         type: 'object',
+        required: ['code', 'confirmId'],
         properties: {
-            id: { type: 'integer' }, 
-            userName: { type: 'string' },
-            email: { type:'string', format: 'email' },
-            pasword: { type: 'string' },
-            lastLogin: { type: 'string' },
-            createdAt: { type: 'string' },
-            updatedAt: { type:'string' },
-            isActive: { type: 'boolean' },
-            avatar: { type: 'string' }
+            code: { type: 'integer' },
+            confirmId: { type: 'string' }
         }
     },
-    publicUserSchema: {
-        $id: 'publicUserSchema',
+    logOutUserSchema: {
+        $id: 'logOutUserSchema',
         type: 'object',
+        required: ['token', 'refresh'],
         properties: {
-            id: { type: 'integer' }, 
-            userName: { type: 'string' },
-            createdAt: { type: 'string' },
-            isActive: { type: 'boolean' },
-            avatar: { type: 'string' }
+            token: { type: 'string' },
+            refresh: { type: 'string' }
+        }
+    },
+
+    refreshUserSchema: {
+        $id: 'refreshUserSchema',
+        type: 'object',
+        required: ['token', 'refresh'],
+        properties: {
+            token: { type: 'string' },
+            refresh: { type: 'string' }
         }
     },
 

@@ -4,9 +4,10 @@ const authServices = require('./authService')
 function authController(fastify, opts, done) {
 
     fastify.addSchema(registerSchemas.newUserSchema)
-    fastify.addSchema(registerSchemas.privateUserSchema)
-    fastify.addSchema(registerSchemas.publicUserSchema)
     fastify.addSchema(registerSchemas.loginUserSchema)
+    fastify.addSchema(registerSchemas.verifyUserSchema)
+    fastify.addSchema(registerSchemas.refreshUserSchema)
+    fastify.addSchema(registerSchemas.logOutUserSchema)
 
     const registerOpt = {
         schema: { 
@@ -29,7 +30,15 @@ function authController(fastify, opts, done) {
         reply.code(201).send(res)
     })
 
-    fastify.post('/verify', async function (request, reply) {
+    const verifyOpt = {
+        schema: { 
+            body: { 
+                $ref: 'verifySchema'
+            }
+        }
+    }
+
+    fastify.post('/verify', verifyOpt, async function (request, reply) {
         
         const { body } = request
 
@@ -73,7 +82,15 @@ function authController(fastify, opts, done) {
         reply.send(authenticatedUser)  
     })
 
-    fastify.post('/logout', async function (request, reply) {
+    const logOutOpts = {
+        schema: {
+            body: {
+                $ref: 'logOutUserSchema'
+            }
+        }
+    }
+
+    fastify.post('/logout', logOutOpts, async function (request, reply) {
         const { body } = request
 
         const logOutRes = await authServices.logout(body.token, body.refresh)
@@ -81,7 +98,15 @@ function authController(fastify, opts, done) {
         reply.send(logOutRes)
     })
 
-    fastify.post('/refresh', async function(request, reply) {
+    const refreshOpts = {
+        schema: {
+            body: {
+                $ref: 'refreshUserSchema'
+            }
+        }
+    }
+
+    fastify.post('/refresh', refreshOpts, async function(request, reply) {
         const { body } = request
 
         const refreshedTokens = await authServices.refreshToken(body.token, body.refresh, request.socket.remoteAddress)
