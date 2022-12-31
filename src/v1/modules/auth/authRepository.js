@@ -30,7 +30,8 @@ async function getUserLoginData(email) {
             email: true,
             userName: true,
             passwordHash: true,
-            isActive: true
+            isActive: true,
+            allowAuth: true
         },
         where: {
             email
@@ -40,8 +41,13 @@ async function getUserLoginData(email) {
     return user
 }
 
+async function setLastLogin(id) {
+    await userRepository.update({id}, { lastLogin: new Date() })
+}
+
 module.exports = {
     createNewUser,
     setActiveUser,
-    getUserLoginData
+    getUserLoginData,
+    setLastLogin
 }

@@ -13,6 +13,18 @@ const DEFAULT_AUTH_ERROR = {
         message: "Email o contraseña incorrecta"
     }
 }
+const LOGIN_NOT_ALLOWED = {
+    error: {
+        code: 'authNotAllowed',
+        message: 'No tiene permiso para iniciar sesión con este usuario \n Contacte a soporte'
+    }
+}
+const NOT_ACTIVE_USER = {
+    error: {
+        code: 'userNotActive', 
+        message: 'Por favor confirme su cuenta antes de iniciar sesión'
+    }
+}
 
 async function newUser(user) {
     try {
@@ -87,20 +99,12 @@ async function verifyUser(confirmId, userCode) {
 
 async function login(user, ip) {
     const userData = await authRepository.getUserLoginData(user.email)
+
+    if(!userData) return DEFAULT_AUTH_ERROR
     
-    if(!userData) {
-        return DEFAULT_AUTH_ERROR
-    }
+    if(!userData.allowAuth) return LOGIN_NOT_ALLOWED
     
-    console.log(userData)
-    if(!userData.isActive) {
-        return {
-            error: {
-                code: 'userNotActive', 
-                message: 'Por favor confirme su cuenta antes de iniciar sesión'
-            }
-        }
-    }
+    if(!userData.isActive) return NOT_ACTIVE_USER
 
 
     const isPasswordMatch = await bcrypt.compare(user.password, userData.passwordHash)
@@ -109,7 +113,9 @@ async function login(user, ip) {
         return DEFAULT_AUTH_ERROR
     }
 
-    const authTokens = await genTokens(userData, ip)
+    const authTokens = await genTokens(userData, ip, user.rememberMe)
+
+    authRepository.setLastLogin(userData.id)
 
     return authTokens
     
