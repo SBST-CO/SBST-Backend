@@ -109,7 +109,7 @@ async function login(user, ip) {
         return DEFAULT_AUTH_ERROR
     }
 
-    const authTokens = await genTokens(userData, ip)
+    const authTokens = await genTokens(userData, ip, user.rememberMe)
 
     return authTokens
     

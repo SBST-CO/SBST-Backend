@@ -57,7 +57,11 @@ function authController(fastify, opts, done) {
         
         const { body } = request
 
-        const authenticatedUser = await authServices.login({email: body.email, password: body.password}, request.socket.remoteAddress)
+        const authenticatedUser = await authServices.login({
+            email: body.email, 
+            password: body.password, 
+            rememberMe: body.rememberMe
+        }, request.socket.remoteAddress)
 
         if(authenticatedUser.error) {
             let exeption = new Error(authenticatedUser.error.message)
