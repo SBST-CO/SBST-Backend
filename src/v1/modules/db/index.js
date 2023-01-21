@@ -1,5 +1,5 @@
 const typeorm = require('typeorm')
-const { User } = require('./entities')
+const { User, MovableProperty } = require('./entities')
 
 const dataSource = new typeorm.DataSource({
     type: 'mysql',
@@ -9,13 +9,14 @@ const dataSource = new typeorm.DataSource({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     entities: [
-        User
+        User,
+        MovableProperty
     ],
     synchronize: true
 })
 
-dataSource.initialize().then(() => {
-
+dataSource.initialize().then(async(d) => {
+    //const mpRepository = d.getRepository('movable_property')
     console.log("DB is now running 🚀")
 
 }).catch(function(error) {
