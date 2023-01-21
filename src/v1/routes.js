@@ -6,6 +6,7 @@ module.exports  = function (fastify, opts, done) {
             fastify.verifySimpleAuth
         ]) 
     })
+    fastify.register(require('./modules/property/propertyControllers'), { prefix: 'property'})
 
     done()
 }
