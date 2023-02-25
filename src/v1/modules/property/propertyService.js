@@ -7,6 +7,39 @@ const DEFAULT_USER_ID_ERROR = {
     }
 }
 
+const NOT_FOUND_PROPERTY = {
+    error: {
+        code: 'notFoundProperty',
+        message: 'La propiedad no existe',
+        httpStatus: 404
+    }
+}
+
+async function deletePropertyById(id) {
+    const property = await propertyRepository.findPropertyById(id)
+    
+    if(!property) return NOT_FOUND_PROPERTY
+
+    const deleted = await propertyRepository.deletePropertyById(property)
+    return deleted
+}
+
+async function updatePropertyById(id, data) {
+    const property = await propertyRepository.findPropertyById(id)
+    
+    delete data.id
+    delete data.createdBy
+    delete data.createdAt
+    delete data.updatedAt
+        
+    if(!property) return NOT_FOUND_PROPERTY
+    
+    const newData = {...property, ...data}
+    
+    const updated = await propertyRepository.updatePropertyById(newData)
+    return updated
+}
+
 async function getAllProperties() {
     const properties = await propertyRepository.findAllProperty()
     return properties
@@ -43,9 +76,76 @@ async function newProperty(property) {
 
 }
 
+async function newInmovableProperty(property) {
+    try {
+        
+        const createdNewProp = await propertyRepository.createNewInmovableProperty(property)
+        return createdNewProp
+    
+    } catch (error) {
+
+        console.log(error);
+
+        if(error.code == 'ER_NO_REFERENCED_ROW_2') {
+            return DEFAULT_USER_ID_ERROR
+        } else {
+            throw new Error(error)
+        }
+    }
+}
+
+async function getAllInmovableProperties() {
+    const properties = await propertyRepository.findAllInmovableProperty()
+    return properties
+}
+
+async function getInmovablePropertyById(id) {
+    const porperty = await propertyRepository.findInmovablePropertyById(id)
+    return porperty
+}
+
+async function getInmovablePropertiesByUserId(userId) {
+    const properties = await propertyRepository.findInmovablePropertiesByUserId(userId)
+
+    return properties
+}
+
+async function deleteInmovablePropertyById(id) {
+    const property = await propertyRepository.findInmovablePropertyById(id)
+    
+    if(!property) return NOT_FOUND_PROPERTY
+
+    const deleted = await propertyRepository.deleteInmovablePropertyById(property)
+    return deleted
+}
+
+async function updateInmovablePropertyById(id, data) {
+    const property = await propertyRepository.findInmovablePropertyById(id)
+    
+    delete data.id
+    delete data.createdBy
+    delete data.createdAt
+    delete data.updatedAt
+        
+    if(!property) return NOT_FOUND_PROPERTY
+    
+    const newData = {...property, ...data}
+    
+    const updated = await propertyRepository.updateInmovablePropertyById(newData)
+    return updated
+}
+
 module.exports = {
     getAllProperties,
     getPropertyById,
     getPropertiesByUserId,
-    newProperty
+    newProperty,
+    newInmovableProperty,
+    getAllInmovableProperties,
+    getInmovablePropertyById,
+    getInmovablePropertiesByUserId,
+    deletePropertyById,
+    updatePropertyById,
+    updateInmovablePropertyById,
+    deleteInmovablePropertyById
 }

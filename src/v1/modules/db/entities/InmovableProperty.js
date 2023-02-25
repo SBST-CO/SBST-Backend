@@ -3,7 +3,7 @@ const EntitySchema = require('typeorm').EntitySchema
 const condition = 'NEW' || 'USED' || 'RECON'
 
 module.exports = new EntitySchema({
-    name: 'movable_property',
+    name: 'inmovable_property',
     columns: {
         id: {
             type:"mediumint",
@@ -16,7 +16,7 @@ module.exports = new EntitySchema({
             length: 45,
             nullable: false
         },
-        retailPrice: {
+        marketPrice: {
             type: 'decimal',
             precision: 14,
             scale: 2,
@@ -28,36 +28,46 @@ module.exports = new EntitySchema({
             nullable: true
         },
 
-        variantName: {
-            type: 'varchar',
-            length: 40,
-            nullable: true
+        type: {
+            type: 'enum',
+            enum: ['APT', 'CAS', 'OFI', 'LOC'],
+            nullable: false
         },
 
-        variantValue: {
+        coordinates: {
             type: 'varchar',
-            length: 100,
+            length: 255,
             nullable: true,
         },
 
-        retailUrl: {
-            type: 'varchar', 
-            length: 255,
-            nullable: true
-        },
-
-        retailerName: {
+        sourceMaps: {
             type: 'varchar',
-            length: 43,
+            length: 255,
+            nullable: true,
+        },
+
+        city: {
+            type: 'varchar', 
+            length: 100,
+            nullable: false
+        },
+
+        address: {
+            type: 'varchar',
+            length: 100,
             nullable: true
         },
 
-        condition: {
-            type: 'enum',
-            enum: ['NEW', 'USED', 'RECON'],
-            nullable: false,
+        area: {
+            type: 'integer',
+            nullable: true,
         },
         
+        roomsNum: {
+            type: 'smallint',
+            nullable: true
+        },
+
         createdAt: {
             createDate: true,
             nullable: false
@@ -74,14 +84,14 @@ module.exports = new EntitySchema({
             type: 'many-to-one',
             joinTable: true,
             joinColumn: {
-                foreignKeyConstraintName: 'FK_CREATED_BY_USER_ID_MOVABLE_PROPERTY'
+                foreignKeyConstraintName: 'FK_CREATED_BY_USER_ID_INMOVABLE_PROPERTY'
             }
         },
         images: {
             target: 'property_images',
             type: 'one-to-many',
             cascade: true,
-            inverseSide: 'movablePropertyId'
+            inverseSide: 'inmovablePropertyId'
         }
     }
 })
