@@ -1,5 +1,5 @@
 const typeorm = require('typeorm')
-const { User, MovableProperty } = require('./entities')
+const { User, MovableProperty, InmovableProperty, PropertyImages } = require('./entities')
 
 const dataSource = new typeorm.DataSource({
     type: 'mysql',
@@ -10,9 +10,15 @@ const dataSource = new typeorm.DataSource({
     database: process.env.DB_NAME,
     entities: [
         User,
-        MovableProperty
+        MovableProperty,
+        InmovableProperty,
+        PropertyImages
     ],
-    synchronize: true
+    synchronize: true,
+    extra: {
+        decimalNumbers: true
+    },
+    logging: false
 })
 
 dataSource.initialize().then(async(d) => {
