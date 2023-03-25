@@ -1,5 +1,12 @@
 const typeorm = require('typeorm')
-const { User, MovableProperty, InmovableProperty, PropertyImages } = require('./entities')
+const { 
+    User, 
+    MovableProperty, 
+    InmovableProperty, 
+    PropertyImages, 
+    AuctionType, 
+    Auction 
+} = require('./entities')
 
 const dataSource = new typeorm.DataSource({
     type: 'mysql',
@@ -12,7 +19,9 @@ const dataSource = new typeorm.DataSource({
         User,
         MovableProperty,
         InmovableProperty,
-        PropertyImages
+        PropertyImages,
+        AuctionType,
+        Auction
     ],
     synchronize: true,
     extra: {
@@ -21,8 +30,13 @@ const dataSource = new typeorm.DataSource({
     logging: false
 })
 
-dataSource.initialize().then(async(d) => {
-    //const mpRepository = d.getRepository('movable_property')
+dataSource.initialize().then(async(dataSource) => {
+    try {
+        await dataSource.query("INSERT INTO auction_type (code, name) VALUES ('SESCP', 'Subasta en sobre cerrado - De primer precio'), ('SESCS', 'Subasta en sobre cerrado - De segundo precio'), ('SD', 'Subasta dinámica'),  ('SRR', 'Subasta Round Robin')")
+    } catch {
+        console.log('Error adding auction_type values or already exist');
+    }
+    
     console.log("DB is now running 🚀")
 
 }).catch(function(error) {

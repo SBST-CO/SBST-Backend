@@ -14,7 +14,7 @@ async function createNewProperty(property) {
 async function createNewInmovableProperty(property) {
     const newProperty = await InmovalblePropertyRepository.save(property)
 
-    return newProperty 
+    return newProperty
 }
 
 async function updatePropertyById(property) {
