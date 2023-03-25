@@ -23,12 +23,13 @@ fastify.register(require('@fastify/auth'))
 fastify.register(require('@fastify/routes'))
 fastify.register(require('./src/v1/routes'), { prefix: '/v1' })
 fastify.setErrorHandler(function (error, request, reply) {
+  console.log(error.validation);
   if (error.validation) {
     localize.es(error.validation)
     return reply.status(400).send({
       statusCode: error.statusCode,
       message: "Error en los datos enviados",
-      errors: error.validation.map(err => err.message)
+      errors: error.validation.map(err => err.instancePath?err.instancePath.split('/')[1]+' '+err.message:err.message)
     })
   }
   return reply.send(error)

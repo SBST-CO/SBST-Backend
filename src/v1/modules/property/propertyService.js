@@ -1,5 +1,43 @@
 const propertyRepository = require('./propertyRepository')
 
+const ALLOWED_ORDER = {
+    'id:asc': {
+        id: 'ASC'
+    },
+
+    'id:desc': {
+        id: 'DESC'
+    },
+
+    'name:asc': {
+        name: 'ASC'
+    },
+
+    'name:desc': {
+        name: 'DESC'
+    },
+
+    'retailPrice:asc': {
+        retailPrice: 'ASC'
+    },
+
+    'retailPrice:desc': {
+        retailPrice: 'DESC'
+    },
+
+    'createdAt:asc': {
+        createdAt: 'ASC'
+    },
+
+    'createdAt:desc':{
+        createdAt: 'DESC'
+    },
+    
+    'undefined': {
+        createdAt: 'ASC'
+    }
+}
+
 const DEFAULT_USER_ID_ERROR = {
     error: {
         code: 'invalidUserId',
@@ -40,8 +78,11 @@ async function updatePropertyById(id, data) {
     return updated
 }
 
-async function getAllProperties() {
-    const properties = await propertyRepository.findAllProperty()
+async function getAllProperties(query) {
+
+    const order = ALLOWED_ORDER[query.order]?ALLOWED_ORDER[query.order]:{createdAt: 'ASC'};
+    
+    const properties = await propertyRepository.findAllProperty(order, query.limit, query.offset)
     return properties
 }
 
@@ -94,8 +135,11 @@ async function newInmovableProperty(property) {
     }
 }
 
-async function getAllInmovableProperties() {
-    const properties = await propertyRepository.findAllInmovableProperty()
+async function getAllInmovableProperties(query) {
+
+    const order = ALLOWED_ORDER[query.order]?ALLOWED_ORDER[query.order]:{createdAt: 'ASC'};
+
+    const properties = await propertyRepository.findAllInmovableProperty(order, query.limit, query.offset)
     return properties
 }
 

@@ -28,7 +28,9 @@ module.exports = function propertyController(fastify, opts, done) {
 
     
     fastify.get('/movable', opts, async function (request, reply) {
-        const properties = await propertyService.getAllProperties()
+        const { query } = request
+        
+        const properties = await propertyService.getAllProperties(query)
         reply.send(properties)
     })
     
@@ -86,7 +88,9 @@ module.exports = function propertyController(fastify, opts, done) {
     })
 
     fastify.get('/inmovable', opts, async function (request, reply) {
-        const properties = await propertyService.getAllInmovableProperties()
+        const { query } = request
+
+        const properties = await propertyService.getAllInmovableProperties(query)
         reply.send(properties)
     })
     

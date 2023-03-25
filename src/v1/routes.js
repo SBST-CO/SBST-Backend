@@ -7,6 +7,6 @@ module.exports  = function (fastify, opts, done) {
         ]) 
     })
     fastify.register(require('./modules/property/propertyControllers'), { prefix: 'property'})
-
+    fastify.register(require('./modules/auction/auctionControllers'), { prefix: 'auction' })
     done()
 }

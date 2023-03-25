@@ -14,7 +14,7 @@ async function createNewProperty(property) {
 async function createNewInmovableProperty(property) {
     const newProperty = await InmovalblePropertyRepository.save(property)
 
-    return newProperty 
+    return newProperty
 }
 
 async function updatePropertyById(property) {
@@ -37,9 +37,12 @@ async function deleteInmovablePropertyById(property) {
     return deleted
 }
 
-async function findAllProperty() {
-        
+async function findAllProperty(order, limit = process.env.FIXED_PAGE_SIZE || 10, skip = 0) {
+            
     const properties = await propertyRepository.find({
+        order,
+        take: limit,
+        skip,
         select: {
             createdBy: {
                 id: true,
@@ -100,9 +103,12 @@ async function findPropertiesByUserId(id) {
     return properties
 }
 
-async function findAllInmovableProperty() {
+async function findAllInmovableProperty(order, limit = process.env.FIXED_PAGE_SIZE || 10, skip = 0) {
         
     const properties = await InmovalblePropertyRepository.find({
+        order,
+        take: limit,
+        skip,
         select: {
             createdBy: {
                 id: true,
